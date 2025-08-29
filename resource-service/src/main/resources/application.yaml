@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: resource-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/resource_service
+    username: resource_user
+    password: resource_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    database: postgresql
+
+server:
+  port: 8071
+
+song-service:
+  base-url: http://localhost:8072
