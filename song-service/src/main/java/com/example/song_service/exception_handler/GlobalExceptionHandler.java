@@ -1,63 +1,97 @@
 package com.example.song_service.exception_handler;
 
 import com.example.song_service.exception.AlreadyExistsException;
+import com.example.song_service.exception.BadRequestException;
 import com.example.song_service.exception.NotFoundException;
+import jakarta.validation.ValidationException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(NotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "errorMessage", ex.getMessage(),
-                "errorCode", "404"
-        ));
+    public ResponseEntity<ApiError> handleNotFound(NotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiError.builder()
+                        .errorMessage(ex.getMessage())
+                        .errorCode("404")
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiError> handleBadRequest(BadRequestException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiError.builder()
+                        .errorMessage(ex.getMessage())
+                        .errorCode("400")
+                        .build());
+    }
+
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<ApiError> handleNumberFormat(NumberFormatException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiError.builder()
+                        .errorMessage(ex.getMessage())
+                        .errorCode("400")
+                        .build());
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleConflict(AlreadyExistsException ex) {
+    public ResponseEntity<ApiError> handleConflict(AlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(
-                        Map.of(
-                                "errorMessage", ex.getMessage(),
-                                "errorCode", "409"
-                        )
+                .body(ApiError.builder()
+                        .errorMessage(ex.getMessage())
+                        .errorCode("409")
+                        .build()
                 );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
-        var details = new HashMap<String, String>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                details.put(error.getField(), error.getDefaultMessage())
-        );
+    public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> details = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        DefaultMessageSourceResolvable::getDefaultMessage,
+                        (existing, replacement) -> existing
+                ));
 
-        return ResponseEntity.badRequest()
-                .body(
-                        Map.of(
-                                "errorMessage", "Validation error",
-                                "details", details,
-                                "errorCode", "400"
-                        )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiError.builder()
+                        .errorMessage("Validation error")
+                        .errorCode("400")
+                        .details(details)
+                        .build()
                 );
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiError> handleValidationException(ValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiError.builder()
+                        .errorMessage("Validation error: " + ex.getMessage())
+                        .errorCode("400")
+                        .build());
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
+    public ResponseEntity<ApiError> handleGeneral(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(
-                        Map.of(
-                                "errorMessage", "Internal server error",
-                                "errorCode", "500"
-                        )
+                .body(ApiError.builder()
+                        .errorMessage("Internal server error")
+                        .errorCode("500")
+                        .build()
                 );
     }
 }

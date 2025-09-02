@@ -5,10 +5,12 @@ import com.example.song_service.exception.AlreadyExistsException;
 import com.example.song_service.exception.NotFoundException;
 import com.example.song_service.mapper.SongMapper;
 import com.example.song_service.repositories.SongRepository;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -33,9 +35,17 @@ public class SongService {
                 .orElseThrow(() -> new NotFoundException("Song metadata with ID=" + id + " not found"));
     }
 
-    public List<Long> deleteSongs(List<Long> ids) {
+    public List<Long> deleteSongs(String ids) {
+        if (ids.length() > 200) {
+            throw new ValidationException("Validation error: CSV length must be less than 200 characters (provided: " + ids.length() + " characters)");
+        }
+
+        var idList = Arrays.stream(ids.split(","))
+                .map(Long::parseLong)
+                .toList();
+
         var deleted = new ArrayList<Long>();
-        ids.stream()
+        idList.stream()
                 .filter(repository::existsById)
                 .forEach(id -> {
                     repository.deleteById(id);

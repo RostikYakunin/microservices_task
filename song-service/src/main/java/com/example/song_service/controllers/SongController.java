@@ -7,10 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/songs")
@@ -31,11 +29,7 @@ public class SongController {
 
     @DeleteMapping
     public ResponseEntity<Map<String, List<Long>>> delete(@RequestParam("id") String ids) {
-        var idList = Arrays.stream(ids.split(","))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
-
-        var deleted = service.deleteSongs(idList);
+        var deleted = service.deleteSongs(ids);
         return ResponseEntity.ok(Map.of("ids", deleted));
     }
 }

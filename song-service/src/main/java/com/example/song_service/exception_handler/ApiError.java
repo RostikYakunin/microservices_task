@@ -1,4 +1,4 @@
-package com.example.resource_service.exception_handler;
+package com.example.song_service.exception_handler;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;

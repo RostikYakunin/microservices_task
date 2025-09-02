@@ -88,7 +88,7 @@ public class ResourceFileService {
             throw new BadRequestException("Query parameter 'id' (CSV) is required");
         }
         if (csv.length() >= 200) {
-            throw new BadRequestException("CSV length must be less than 200 characters");
+            throw new BadRequestException("CSV length must be less than 200 characters (provided: " + csv.length() + " characters)");
         }
         if (!csv.matches("^[0-9,]+$")) {
             throw new BadRequestException("CSV must contain only digits and commas");
@@ -101,11 +101,11 @@ public class ResourceFileService {
             requirePositiveId(id);
             return id;
         } catch (NumberFormatException e) {
-            throw new BadRequestException("ID must be a positive integer");
+            throw new BadRequestException("ID must be a positive integer, provided Id=" + value);
         }
     }
 
     private void requirePositiveId(long id) {
-        if (id <= 0) throw new BadRequestException("ID must be a positive integer");
+        if (id <= 0) throw new BadRequestException("ID must be a positive integer, provided Id=" + id);
     }
 }
