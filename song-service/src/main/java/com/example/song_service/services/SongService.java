@@ -2,10 +2,10 @@ package com.example.song_service.services;
 
 import com.example.song_service.dto.SongDto;
 import com.example.song_service.exception.AlreadyExistsException;
+import com.example.song_service.exception.CsvTooLongException;
 import com.example.song_service.exception.NotFoundException;
 import com.example.song_service.mapper.SongMapper;
 import com.example.song_service.repositories.SongRepository;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,24 +25,24 @@ public class SongService {
 
         var song = SongMapper.toEntity(dto);
         repository.save(song);
-
         return song.getId();
     }
 
     public SongDto getSong(Long id) {
         return repository.findById(id)
                 .map(SongMapper::toDto)
-                .orElseThrow(() -> new NotFoundException("Song metadata with ID=" + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("Song metadata for ID=" + id + " not found"));
     }
 
     public List<Long> deleteSongs(String ids) {
         if (ids.length() > 200) {
-            throw new ValidationException("Validation error: CSV length must be less than 200 characters (provided: " + ids.length() + " characters)");
+            throw new CsvTooLongException(
+                    "CSV string is too long: received " + ids.length() + " characters, maximum allowed is 200"
+            );
         }
 
         var idList = Arrays.stream(ids.split(","))
-                .map(Long::parseLong)
-                .toList();
+                .map(Long::parseLong).toList();
 
         var deleted = new ArrayList<Long>();
         idList.stream()

@@ -1,13 +1,12 @@
 package com.example.resource_service.controller;
 
+import com.example.resource_service.dtos.DeletedResourcesResponse;
+import com.example.resource_service.dtos.UploadResponse;
 import com.example.resource_service.services.ResourceFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,10 +14,13 @@ import java.util.Map;
 public class ResourceFileController {
     private final ResourceFileService service;
 
-    @PostMapping(consumes = "audio/mpeg", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Long>> upload(@RequestBody byte[] mp3) {
-        var id = service.upload(mp3);
-        return ResponseEntity.ok(Map.of("id", id));
+    @PostMapping
+    public ResponseEntity<UploadResponse> upload(
+            @RequestBody byte[] body,
+            @RequestHeader(value = "Content-Type", required = false) String contentType
+    ) {
+        var id = service.upload(body, contentType);
+        return ResponseEntity.ok(new UploadResponse(id));
     }
 
     @GetMapping(value = "/{id}", produces = "audio/mpeg")
@@ -26,12 +28,13 @@ public class ResourceFileController {
         var data = service.getBytes(id);
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("audio/mpeg"))
+                .contentLength(data.length)
                 .body(data);
     }
 
-    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, List<Long>>> delete(@RequestParam("id") String csv) {
-        var deleted = service.deleteByCsv(csv);
-        return ResponseEntity.ok(Map.of("ids", deleted));
+    @DeleteMapping
+    public ResponseEntity<DeletedResourcesResponse> delete(@RequestParam String id) {
+        var deletedIds = service.deleteByCsv(id);
+        return ResponseEntity.ok(new DeletedResourcesResponse(deletedIds));
     }
 }

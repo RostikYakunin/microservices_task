@@ -1,7 +1,9 @@
 package com.example.song_service.exception_handler;
 
+import com.example.song_service.dto.ApiError;
 import com.example.song_service.exception.AlreadyExistsException;
 import com.example.song_service.exception.BadRequestException;
+import com.example.song_service.exception.CsvTooLongException;
 import com.example.song_service.exception.NotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -24,8 +26,7 @@ public class GlobalExceptionHandler {
                 .body(ApiError.builder()
                         .errorMessage(ex.getMessage())
                         .errorCode("404")
-                        .build()
-                );
+                        .build());
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -39,9 +40,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NumberFormatException.class)
     public ResponseEntity<ApiError> handleNumberFormat(NumberFormatException ex) {
+        String invalidValue = ex.getMessage()
+                .replace("For input string: \"", "")
+                .replace("\"", "");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiError.builder()
-                        .errorMessage(ex.getMessage())
+                        .errorMessage("Invalid ID format: '" + invalidValue + "'. Only positive integers are allowed")
                         .errorCode("400")
                         .build());
     }
@@ -52,8 +56,16 @@ public class GlobalExceptionHandler {
                 .body(ApiError.builder()
                         .errorMessage(ex.getMessage())
                         .errorCode("409")
-                        .build()
-                );
+                        .build());
+    }
+
+    @ExceptionHandler(CsvTooLongException.class)
+    public ResponseEntity<ApiError> handleCsvTooLong(CsvTooLongException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiError.builder()
+                        .errorMessage(ex.getMessage())
+                        .errorCode("400")
+                        .build());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -72,15 +84,14 @@ public class GlobalExceptionHandler {
                         .errorMessage("Validation error")
                         .errorCode("400")
                         .details(details)
-                        .build()
-                );
+                        .build());
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiError> handleValidationException(ValidationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiError.builder()
-                        .errorMessage("Validation error: " + ex.getMessage())
+                        .errorMessage("Validation error")
                         .errorCode("400")
                         .build());
     }
@@ -91,7 +102,6 @@ public class GlobalExceptionHandler {
                 .body(ApiError.builder()
                         .errorMessage("Internal server error")
                         .errorCode("500")
-                        .build()
-                );
+                        .build());
     }
 }

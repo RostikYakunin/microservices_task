@@ -1,10 +1,8 @@
-package com.example.song_service.exception_handler;
+package com.example.resource_service.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.Map;
 
 @Data
 @Builder
@@ -12,5 +10,4 @@ import java.util.Map;
 public class ApiError {
     private String errorMessage;
     private String errorCode;
-    private Map<String, String> details;
 }
