@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NumberFormatException.class)
     public ResponseEntity<ApiError> handleNumberFormat(NumberFormatException ex) {
-        String invalidValue = ex.getMessage()
+        var invalidValue = ex.getMessage()
                 .replace("For input string: \"", "")
                 .replace("\"", "");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> details = ex.getBindingResult()
+        var details = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .collect(Collectors.toMap(
