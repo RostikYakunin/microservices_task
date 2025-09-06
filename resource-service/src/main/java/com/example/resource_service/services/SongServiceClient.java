@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient;
 public class SongServiceClient {
     private final RestClient restClient;
 
-    @Value("${song-service.base-url:http://localhost:8082}")
+    @Value("${song-service.base-url}")
     private String baseUrl;
 
     public void createSongMetadata(SongMetadataRequest body) {
