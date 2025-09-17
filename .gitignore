@@ -19,5 +19,7 @@ Thumbs.db
 target/
 
 ### Microservices ###
-resource-service/build
-song-service/build
+/resource-service/build/
+/song-service/build/
+/eureka-server/build/
+/api-gateway/build/
