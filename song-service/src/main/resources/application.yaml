@@ -19,7 +19,6 @@ spring:
 
 server:
   port: 0
-#  "${SERVER_PORT:8072}"
 
 eureka:
   client:
