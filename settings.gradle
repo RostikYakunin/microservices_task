@@ -2,3 +2,5 @@ rootProject.name = 'microservices-task'
 
 include 'resource-service'
 include 'song-service'
+include 'eureka-server'
+include 'api-gateway'
