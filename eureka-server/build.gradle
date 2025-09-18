@@ -32,7 +32,6 @@ dependencies {
     //SPRING BOOT
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     //LOMBOK
     compileOnly 'org.projectlombok:lombok'
